@@ -191,7 +191,8 @@
 
     /* ── Glitch Effect ── */
     .glitch-hover { position: relative; display: inline-block; }
-    .glitch-hover:hover {
+    .glitch-hover:hover,
+    .glitch-hover.glitching {
         animation: glitchText 0.35s steps(2) 1;
     }
     @keyframes glitchText {
@@ -410,57 +411,57 @@
     </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
       <!-- Multi-threaded -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0s;">
-        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 border border-primary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary text-xl">speed</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0s;">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-5 border border-primary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary text-2xl">speed</span>
         </div>
-        <p class="font-body text-primary text-xs mb-1.5 tracking-[0.3em] uppercase">// MULTI-THREADED_ENGINE</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Multi-Threaded</h3>
+        <p class="font-body text-primary text-xs mb-2 tracking-[0.3em] uppercase">// MULTI-THREADED_ENGINE</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Multi-Threaded</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Open up to 32 concurrent connections per file to saturate your pipes and maximize throughput.</p>
       </div>
       <!-- Multiple Mirrors -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.1s;">
-        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 border border-secondary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-secondary text-xl">hub</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.1s;">
+        <div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-5 border border-secondary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary text-2xl">hub</span>
         </div>
-        <p class="font-body text-secondary text-xs mb-1.5 tracking-[0.3em] uppercase">// MIRROR_DISTRIBUTION</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Multiple Mirrors</h3>
+        <p class="font-body text-secondary text-xs mb-2 tracking-[0.3em] uppercase">// MIRROR_DISTRIBUTION</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Multiple Mirrors</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Distribute workers across all available mirrors simultaneously with automatic failover on any connection drop.</p>
       </div>
       <!-- Sequential Download -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.2s;">
-        <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center mb-4 border border-tertiary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-tertiary text-xl">stream</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.2s;">
+        <div class="w-12 h-12 bg-tertiary/10 rounded-xl flex items-center justify-center mb-5 border border-tertiary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-tertiary text-2xl">stream</span>
         </div>
-        <p class="font-body text-tertiary text-xs mb-1.5 tracking-[0.3em] uppercase">// STREAMING_MODE</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Sequential Download</h3>
+        <p class="font-body text-tertiary text-xs mb-2 tracking-[0.3em] uppercase">// STREAMING_MODE</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Sequential Download</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Download files in strict order for media-first access. Preview videos and audio while the download is still in progress.</p>
       </div>
       <!-- Headless Server -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.3s;">
-        <div class="w-10 h-10 bg-primary-dim/10 rounded-xl flex items-center justify-center mb-4 border border-primary-dim/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary-dim text-xl">terminal</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.3s;">
+        <div class="w-12 h-12 bg-primary-dim/10 rounded-xl flex items-center justify-center mb-5 border border-primary-dim/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary-dim text-2xl">terminal</span>
         </div>
-        <p class="font-body text-primary-dim text-xs mb-1.5 tracking-[0.3em] uppercase">// DAEMON_ARCHITECTURE</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Headless Server</h3>
+        <p class="font-body text-primary-dim text-xs mb-2 tracking-[0.3em] uppercase">// DAEMON_ARCHITECTURE</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Headless Server</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Run as a background daemon with a token-protected HTTP API. Perfect for servers, Raspberry Pis, and remote orchestration.</p>
       </div>
       <!-- Work Stealing -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.4s;">
-        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 border border-secondary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-secondary text-xl">psychology</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.4s;">
+        <div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-5 border border-secondary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary text-2xl">psychology</span>
         </div>
-        <p class="font-body text-secondary text-xs mb-1.5 tracking-[0.3em] uppercase">// INTELLIGENT_SCHEDULING</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Work Stealing</h3>
+        <p class="font-body text-secondary text-xs mb-2 tracking-[0.3em] uppercase">// INTELLIGENT_SCHEDULING</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Work Stealing</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Fast idle workers steal chunks from slow workers. Health checks restart underperforming connections automatically.</p>
       </div>
       <!-- Beautiful TUI -->
-      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.5s;">
-        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 border border-primary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary text-xl">palette</span>
+      <div class="bg-[#120b29] p-7 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.5s;">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-5 border border-primary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary text-2xl">palette</span>
         </div>
-        <p class="font-body text-primary text-xs mb-1.5 tracking-[0.3em] uppercase">// TERMINAL_UI</p>
-        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Beautiful TUI</h3>
+        <p class="font-body text-primary text-xs mb-2 tracking-[0.3em] uppercase">// TERMINAL_UI</p>
+        <h3 class="font-headline text-xl font-bold mb-3 text-white uppercase tracking-tight">Beautiful TUI</h3>
         <p class="text-on-surface-variant text-xs font-body leading-relaxed">Built with Bubble Tea &amp; Lip Gloss. Keyboard-driven workflow with live speed graphs, queued/active/done tabs and settings UI.</p>
       </div>
     </div>
@@ -546,7 +547,7 @@
 <section id="downloads" class="snap-section py-24 px-8 lg:px-24 bg-surface-container-low/30">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-24">
-      <p class="font-body text-tertiary text-sm mb-4 tracking-[0.4em] uppercase font-bold">// Production Ready</p>
+
       <h2 class="font-headline text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter glitch-hover">INITIATE DOWNLOAD</h2>
       <p class="text-on-surface-variant font-body max-w-2xl mx-auto text-lg">Select your platform to inject the Surge core binary into your local environment.</p>
     </div>
@@ -829,6 +830,21 @@
       });
     }, { threshold: 0.25 });
     benchObs.observe(benchSection);
+  }
+
+  // ── Auto-glitch headings ──
+  const glitchEls = Array.from(document.querySelectorAll('.glitch-hover'));
+  if (glitchEls.length) {
+    function triggerRandomGlitch() {
+      const el = glitchEls[Math.floor(Math.random() * glitchEls.length)];
+      el.classList.remove('glitching');
+      void el.offsetWidth; // reflow to restart animation
+      el.classList.add('glitching');
+      el.addEventListener('animationend', () => el.classList.remove('glitching'), { once: true });
+      // Schedule next glitch in 3–7 seconds
+      setTimeout(triggerRandomGlitch, 3000 + Math.random() * 4000);
+    }
+    setTimeout(triggerRandomGlitch, 2000 + Math.random() * 2000);
   }
 })();
 </script>
