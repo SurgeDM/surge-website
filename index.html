@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Surge — Blazing Fast TUI Download Manager</title>
+<title>Surge_</title>
 <meta name="description" content="Surge is a blazing fast TUI download manager built in Go for power users. Opens up to 32 parallel connections per file, supports multiple mirrors, daemon mode, and a browser extension."/>
 <meta name="keywords" content="surge, download manager, TUI, Go, terminal, fast downloads, aria2c, wget, curl, open source"/>
 
@@ -107,6 +107,14 @@
         background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
         background-size: 100% 4px, 3px 100%;
         pointer-events: none;
+        animation: scanlineFlicker 8s ease-in-out infinite;
+    }
+    @keyframes scanlineFlicker {
+        0%, 92%, 100% { opacity: 0.10; }
+        93% { opacity: 0.18; }
+        94% { opacity: 0.06; }
+        95% { opacity: 0.14; }
+        96% { opacity: 0.10; }
     }
     .glow-text {
         text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
@@ -123,6 +131,7 @@
     .terminal-glow {
         box-shadow: 0 0 40px rgba(0, 255, 255, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.5);
     }
+    /* Card shimmer spotlight — follows mouse */
     .card-shimmer {
         position: relative;
         overflow: hidden;
@@ -130,49 +139,161 @@
     .card-shimmer::after {
         content: "";
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03), transparent);
-        transform: rotate(45deg);
-        transition: 0.5s;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: radial-gradient(circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 70%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s;
     }
-    .card-shimmer:hover::after {
-        left: 100%;
-    }
+    .card-shimmer:hover::after { opacity: 1; }
+
     html {
         scroll-behavior: smooth;
-        scroll-snap-type: y proximity;
+        cursor: none;
+        /* Hide scrollbar — all browsers */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
-    main {
-        scroll-snap-type: y proximity;
-    }
+    html::-webkit-scrollbar { display: none; }
+    body { overflow-y: scroll; }
+    body::-webkit-scrollbar { display: none; }
     .snap-section {
-        scroll-snap-align: start;
+        height: 100vh;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        overflow: hidden;
     }
-    #mobile-menu {
-        display: none;
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+
+    /* ── Custom Cursor ── */
+    .cursor-dot {
+        position: fixed; top: 0; left: 0;
+        width: 10px; height: 10px;
+        background: #00ffff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 12px 3px rgba(0,255,255,0.5);
+        transition: width 0.2s, height 0.2s, background 0.2s, box-shadow 0.2s;
+        mix-blend-mode: screen;
     }
-    #mobile-menu.open {
-        display: flex;
+    .cursor-dot.expand {
+        width: 28px; height: 28px;
+        background: rgba(0,255,255,0.15);
+        box-shadow: 0 0 20px 6px rgba(0,255,255,0.3);
+        border: 1.5px solid rgba(0,255,255,0.5);
+    }
+
+    /* ── Glitch Effect ── */
+    .glitch-hover { position: relative; display: inline-block; }
+    .glitch-hover:hover {
+        animation: glitchText 0.35s steps(2) 1;
+    }
+    @keyframes glitchText {
+        0%   { text-shadow: 2px 0 #ff51fa, -2px 0 #00ffff; transform: translate(0); }
+        20%  { text-shadow: -3px 0 #ff51fa, 3px 0 #00ffff; transform: translate(-2px, 1px); }
+        40%  { text-shadow: 3px 0 #ff51fa, -3px 0 #00ffff; transform: translate(2px, -1px); }
+        60%  { text-shadow: -1px 0 #ff51fa, 1px 0 #00ffff; transform: translate(1px, 1px); }
+        80%  { text-shadow: 2px 0 #ff51fa, -2px 0 #00ffff; transform: translate(-1px, -1px); }
+        100% { text-shadow: none; transform: translate(0); }
+    }
+
+    /* ── Scroll Reveal ── */
+    .reveal-card {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal-card.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ── Benchmark bar animation ── */
+    .bench-bar {
+        transition: width 2.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ── Glow Button ── */
+    .glow-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    .glow-btn::before {
+        content: "";
+        position: absolute;
+        top: -2px; left: -2px; right: -2px; bottom: -2px;
+        background: conic-gradient(from var(--btn-angle, 0deg), #00ffff, #ff51fa, #bafd00, #00ffff);
+        border-radius: inherit;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.35s;
+        animation: rotateBtnGlow 3s linear infinite;
+    }
+    .glow-btn:hover::before { opacity: 1; }
+    @keyframes rotateBtnGlow {
+        to { --btn-angle: 360deg; }
+    }
+    @property --btn-angle {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+    }
+
+    /* ── Binary Rain Background ── */
+    .hero-binary-rain {
+        position: absolute; inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0.06;
+    }
+    .binary-column {
+        position: absolute; top: -100%;
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        color: #00ffff;
+        line-height: 1.4;
+        writing-mode: vertical-rl;
+        animation: binaryFall linear infinite;
+        white-space: nowrap;
+    }
+    @keyframes binaryFall {
+        from { transform: translateY(-100%); }
+        to   { transform: translateY(calc(100vh + 100%)); }
+    }
+
+    /* ── Pulsing Orb ── */
+    .hero-orb {
+        position: absolute;
+        width: 500px; height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,255,255,0.12) 0%, transparent 70%);
+        animation: orbPulse 4s ease-in-out infinite alternate;
+        pointer-events: none;
+    }
+    @keyframes orbPulse {
+        from { transform: translate(-50%, -50%) scale(0.9); opacity: 0.4; }
+        to   { transform: translate(-50%, -50%) scale(1.15); opacity: 0.8; }
     }
 </style>
 </head>
 <body class="bg-background text-on-surface font-body selection:bg-secondary selection:text-surface-dim overflow-x-hidden">
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursor-dot"></div>
 <!-- Scanline Overlay -->
-<div class="fixed inset-0 z-[100] scanline-overlay opacity-10 pointer-events-none"></div>
+<div class="fixed inset-0 z-[100] scanline-overlay pointer-events-none"></div>
 
 <!-- Header -->
 <nav id="top" class="sticky top-0 z-50 w-full nav-bg px-8 py-5">
   <div class="max-w-7xl mx-auto flex justify-between items-center">
     <a href="#top" class="flex items-center gap-2">
       <img src="assets/logo_nobg.png" alt="Surge Logo" class="w-8 h-8"/>
-      <span class="text-2xl font-black text-white font-headline tracking-tighter italic">surge_</span>
+      <span class="text-2xl font-black text-white font-headline tracking-tighter italic">Surge_</span>
     </a>
     <!-- Desktop nav -->
     <div class="hidden md:flex gap-10 items-center font-headline font-medium uppercase tracking-widest text-sm">
@@ -219,11 +340,15 @@
 <main>
 <!-- Hero Section -->
 <section class="snap-section relative px-8 lg:px-16 overflow-hidden">
+  <!-- Binary Rain Background -->
+  <div class="hero-binary-rain" id="binary-rain"></div>
+  <!-- Pulsing Orb -->
+  <div class="hero-orb" style="top:50%; left:35%;"></div>
   <!-- Background ambient glow -->
   <div class="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 blur-[160px] pointer-events-none rounded-full"></div>
   <div class="absolute top-1/3 right-0 w-[400px] h-[400px] bg-secondary/8 blur-[140px] pointer-events-none rounded-full"></div>
 
-  <div class="max-w-8xl mx-auto w-full grid lg:grid-cols-[3fr_2fr] gap-16 items-center">
+  <div class="max-w-[1600px] mx-auto w-full grid lg:grid-cols-[7fr_3fr] gap-12 items-center">
     <!-- LEFT: Big GIF terminal -->
     <div class="relative order-2 lg:order-1">
       <div class="absolute -inset-8 bg-primary/10 blur-[80px] opacity-50 rounded-full pointer-events-none"></div>
@@ -243,7 +368,7 @@
         <span class="text-secondary text-xs font-black tracking-[0.25em] uppercase">Open Source · MIT</span>
       </div>
 
-      <h1 class="font-headline text-5xl md:text-7xl font-black text-white leading-[0.88] tracking-tighter uppercase">
+      <h1 class="font-headline text-5xl md:text-7xl font-black text-white leading-[0.88] tracking-tighter uppercase glitch-hover">
         BLAZING<br/>
         <span class="text-primary glow-text">FAST</span><br/>
         DOWNLOADS
@@ -254,7 +379,7 @@
       </p>
 
       <div class="flex flex-col sm:flex-row gap-3 pt-2">
-        <a href="#downloads" class="px-8 py-4 bg-primary text-on-primary-container font-black text-base rounded-xl hover:shadow-[0_0_25px_rgba(0,255,255,0.45)] transition-all transform hover:-translate-y-0.5 text-center font-headline uppercase tracking-tight">
+        <a href="#downloads" class="glow-btn px-8 py-4 bg-primary text-on-primary-container font-black text-base rounded-xl hover:shadow-[0_0_25px_rgba(0,255,255,0.45)] transition-all transform hover:-translate-y-0.5 text-center font-headline uppercase tracking-tight">
           GET SURGE
         </a>
         <a href="https://github.com/surge-downloader/surge#usage" target="_blank" rel="noopener" class="px-8 py-4 border border-white/15 text-white/80 font-bold text-base rounded-xl hover:bg-white/5 hover:text-white transition-all text-center font-headline uppercase tracking-tight">
@@ -272,71 +397,71 @@
 </section>
 
 <!-- Technical Specs / Features -->
-<section id="features" class="snap-section py-24 px-8 lg:px-24 bg-surface-container-low/30">
+<section id="features" class="snap-section py-10 px-8 lg:px-24 bg-surface-container-low/30">
   <div class="max-w-7xl mx-auto">
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
       <div class="max-w-2xl">
-        <p class="font-body text-secondary text-sm mb-4 tracking-[0.4em] uppercase font-bold">// Engine Architecture</p>
-        <h2 class="font-headline text-5xl md:text-6xl font-black text-white tracking-tighter uppercase">ENGINEERED FOR SPEED</h2>
+        <p class="font-body text-secondary text-xs mb-2 tracking-[0.4em] uppercase font-bold">// Engine Architecture</p>
+        <h2 class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter uppercase glitch-hover">ENGINEERED FOR SPEED</h2>
       </div>
       <p class="text-on-surface-variant max-w-sm font-body text-sm leading-relaxed">
         Designed from the ground up to utilize every byte of your network bandwidth through modern concurrency patterns.
       </p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
       <!-- Multi-threaded -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group">
-        <div class="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mb-8 border border-primary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary text-3xl">speed</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0s;">
+        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 border border-primary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary text-xl">speed</span>
         </div>
-        <p class="font-body text-primary text-xs mb-3 tracking-[0.3em] uppercase">// MULTI-THREADED_ENGINE</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Multi-Threaded</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Open up to 32 concurrent connections per file to saturate your pipes and maximize throughput.</p>
+        <p class="font-body text-primary text-xs mb-1.5 tracking-[0.3em] uppercase">// MULTI-THREADED_ENGINE</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Multi-Threaded</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Open up to 32 concurrent connections per file to saturate your pipes and maximize throughput.</p>
       </div>
       <!-- Multiple Mirrors -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group lg:mt-12">
-        <div class="w-16 h-16 bg-secondary/10 rounded-xl flex items-center justify-center mb-8 border border-secondary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-secondary text-3xl">hub</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.1s;">
+        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 border border-secondary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary text-xl">hub</span>
         </div>
-        <p class="font-body text-secondary text-xs mb-3 tracking-[0.3em] uppercase">// MIRROR_DISTRIBUTION</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Multiple Mirrors</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Distribute workers across all available mirrors simultaneously with automatic failover on any connection drop.</p>
+        <p class="font-body text-secondary text-xs mb-1.5 tracking-[0.3em] uppercase">// MIRROR_DISTRIBUTION</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Multiple Mirrors</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Distribute workers across all available mirrors simultaneously with automatic failover on any connection drop.</p>
       </div>
       <!-- Sequential Download -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group">
-        <div class="w-16 h-16 bg-tertiary/10 rounded-xl flex items-center justify-center mb-8 border border-tertiary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-tertiary text-3xl">stream</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.2s;">
+        <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center mb-4 border border-tertiary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-tertiary text-xl">stream</span>
         </div>
-        <p class="font-body text-tertiary text-xs mb-3 tracking-[0.3em] uppercase">// STREAMING_MODE</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Sequential Download</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Download files in strict order for media-first access. Preview videos and audio while the download is still in progress.</p>
+        <p class="font-body text-tertiary text-xs mb-1.5 tracking-[0.3em] uppercase">// STREAMING_MODE</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Sequential Download</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Download files in strict order for media-first access. Preview videos and audio while the download is still in progress.</p>
       </div>
       <!-- Headless Server -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group">
-        <div class="w-16 h-16 bg-primary-dim/10 rounded-xl flex items-center justify-center mb-8 border border-primary-dim/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary-dim text-3xl">terminal</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.3s;">
+        <div class="w-10 h-10 bg-primary-dim/10 rounded-xl flex items-center justify-center mb-4 border border-primary-dim/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary-dim text-xl">terminal</span>
         </div>
-        <p class="font-body text-primary-dim text-xs mb-3 tracking-[0.3em] uppercase">// DAEMON_ARCHITECTURE</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Headless Server</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Run as a background daemon with a token-protected HTTP API. Perfect for servers, Raspberry Pis, and remote orchestration.</p>
+        <p class="font-body text-primary-dim text-xs mb-1.5 tracking-[0.3em] uppercase">// DAEMON_ARCHITECTURE</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Headless Server</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Run as a background daemon with a token-protected HTTP API. Perfect for servers, Raspberry Pis, and remote orchestration.</p>
       </div>
       <!-- Work Stealing -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group lg:mt-12">
-        <div class="w-16 h-16 bg-secondary/10 rounded-xl flex items-center justify-center mb-8 border border-secondary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-secondary text-3xl">psychology</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.4s;">
+        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 border border-secondary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary text-xl">psychology</span>
         </div>
-        <p class="font-body text-secondary text-xs mb-3 tracking-[0.3em] uppercase">// INTELLIGENT_SCHEDULING</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Work Stealing</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Fast idle workers steal chunks from slow workers. Health checks restart underperforming connections automatically.</p>
+        <p class="font-body text-secondary text-xs mb-1.5 tracking-[0.3em] uppercase">// INTELLIGENT_SCHEDULING</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Work Stealing</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Fast idle workers steal chunks from slow workers. Health checks restart underperforming connections automatically.</p>
       </div>
       <!-- Beautiful TUI -->
-      <div class="bg-[#120b29] p-10 rounded-2xl border border-white/5 card-shimmer group">
-        <div class="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mb-8 border border-primary/20 group-hover:scale-110 transition-transform">
-          <span class="material-symbols-outlined text-primary text-3xl">palette</span>
+      <div class="bg-[#120b29] p-5 rounded-2xl border border-white/5 card-shimmer group reveal-card" style="transition-delay: 0.5s;">
+        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 border border-primary/20 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary text-xl">palette</span>
         </div>
-        <p class="font-body text-primary text-xs mb-3 tracking-[0.3em] uppercase">// TERMINAL_UI</p>
-        <h3 class="font-headline text-2xl font-bold mb-4 text-white uppercase tracking-tight">Beautiful TUI</h3>
-        <p class="text-on-surface-variant text-sm font-body leading-loose">Built with Bubble Tea &amp; Lip Gloss. Keyboard-driven workflow with live speed graphs, queued/active/done tabs and settings UI.</p>
+        <p class="font-body text-primary text-xs mb-1.5 tracking-[0.3em] uppercase">// TERMINAL_UI</p>
+        <h3 class="font-headline text-lg font-bold mb-2 text-white uppercase tracking-tight">Beautiful TUI</h3>
+        <p class="text-on-surface-variant text-xs font-body leading-relaxed">Built with Bubble Tea &amp; Lip Gloss. Keyboard-driven workflow with live speed graphs, queued/active/done tabs and settings UI.</p>
       </div>
     </div>
   </div>
@@ -349,47 +474,47 @@
     <div class="order-2 lg:order-1">
       <div class="mb-16">
         <p class="font-body text-primary text-sm mb-4 tracking-[0.4em] uppercase font-bold">// Performance Validation</p>
-        <h2 class="font-headline text-5xl md:text-6xl font-black text-white tracking-tighter uppercase">BLOWING PAST<br/>THE LIMITS</h2>
+        <h2 class="font-headline text-5xl md:text-6xl font-black text-white tracking-tighter uppercase glitch-hover">BLOWING PAST<br/>THE LIMITS</h2>
       </div>
       <div class="space-y-12 max-w-lg">
         <!-- Surge -->
         <div class="space-y-3">
           <div class="flex justify-between items-end text-xs uppercase font-bold tracking-widest">
             <span class="text-white">SURGE <span class="text-primary">(latest)</span></span>
-            <span class="text-primary text-xl font-black font-body">35.40 MB/s</span>
+            <span class="text-primary text-xl font-black font-body" data-count-to="35.40" data-suffix=" MB/s">0.00 MB/s</span>
           </div>
           <div class="h-3 bg-white/5 w-full rounded-full p-0.5 border border-white/10 overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-primary-dim to-primary rounded-full shadow-[0_0_15px_rgba(0,255,255,0.5)]" style="width: 100%;"></div>
+            <div class="h-full bg-gradient-to-r from-primary-dim to-primary rounded-full shadow-[0_0_15px_rgba(0,255,255,0.5)] bench-bar" data-target="100" style="width: 0%;"></div>
           </div>
         </div>
         <!-- aria2c -->
-        <div class="space-y-3 opacity-40">
+        <div class="space-y-3 opacity-70">
           <div class="flex justify-between items-end text-xs uppercase font-bold tracking-widest">
             <span class="text-on-surface-variant">ARIA2C</span>
             <span class="text-on-surface-variant font-body">25.57 MB/s</span>
           </div>
           <div class="h-2 bg-white/5 w-full rounded-full overflow-hidden">
-            <div class="h-full bg-white/20 rounded-full" style="width: 72%;"></div>
+            <div class="h-full bg-white/50 rounded-full bench-bar" data-target="72" style="width: 0%;"></div>
           </div>
         </div>
         <!-- curl -->
-        <div class="space-y-3 opacity-40">
+        <div class="space-y-3 opacity-70">
           <div class="flex justify-between items-end text-xs uppercase font-bold tracking-widest">
             <span class="text-on-surface-variant">CURL</span>
             <span class="text-on-surface-variant font-body">17.79 MB/s</span>
           </div>
           <div class="h-2 bg-white/5 w-full rounded-full overflow-hidden">
-            <div class="h-full bg-white/20 rounded-full" style="width: 50%;"></div>
+            <div class="h-full bg-white/50 rounded-full bench-bar" data-target="50" style="width: 0%;"></div>
           </div>
         </div>
         <!-- wget -->
-        <div class="space-y-3 opacity-40">
+        <div class="space-y-3 opacity-70">
           <div class="flex justify-between items-end text-xs uppercase font-bold tracking-widest">
             <span class="text-on-surface-variant">WGET</span>
             <span class="text-on-surface-variant font-body">16.57 MB/s</span>
           </div>
           <div class="h-2 bg-white/5 w-full rounded-full overflow-hidden">
-            <div class="h-full bg-white/20 rounded-full" style="width: 47%;"></div>
+            <div class="h-full bg-white/50 rounded-full bench-bar" data-target="47" style="width: 0%;"></div>
           </div>
         </div>
         <p class="text-on-surface-variant/50 text-xs font-body">Test: 1 GB file · Windows 11 · Ryzen 5 5600X · 360 Mbps · 5 runs averaged</p>
@@ -422,7 +547,7 @@
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-24">
       <p class="font-body text-tertiary text-sm mb-4 tracking-[0.4em] uppercase font-bold">// Production Ready</p>
-      <h2 class="font-headline text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">INITIATE DOWNLOAD</h2>
+      <h2 class="font-headline text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter glitch-hover">INITIATE DOWNLOAD</h2>
       <p class="text-on-surface-variant font-body max-w-2xl mx-auto text-lg">Select your platform to inject the Surge core binary into your local environment.</p>
     </div>
     <div class="grid md:grid-cols-3 gap-10">
@@ -433,13 +558,9 @@
             <h3 class="font-headline text-3xl font-black text-white">WINDOWS</h3>
             <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-lg tracking-widest">WINGET</span>
           </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-4 rounded-2xl border border-white/5 relative group-hover:border-primary/20 transition-colors">
+          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-primary/20 transition-colors">
             <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Shell Command</span>
             <code class="text-primary font-bold">winget install surge-downloader.surge</code>
-          </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-primary/20 transition-colors">
-            <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Alt: Scoop</span>
-            <code class="text-primary/70 font-bold">scoop install surge</code>
           </div>
           <a href="https://github.com/surge-downloader/surge/releases/latest" target="_blank" rel="noopener" class="block w-full py-5 bg-primary/10 border border-primary/20 text-primary font-black uppercase text-xs tracking-[0.2em] hover:bg-primary hover:text-black transition-all rounded-2xl active:scale-95 text-center">
             DOWNLOAD .EXE
@@ -454,16 +575,12 @@
             <h3 class="font-headline text-3xl font-black text-white">MACOS</h3>
             <span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg tracking-widest">BREW</span>
           </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-4 rounded-2xl border border-white/5 relative group-hover:border-secondary/20 transition-colors">
+          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-secondary/20 transition-colors">
             <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Shell Command</span>
             <code class="text-secondary font-bold">brew install surge-downloader/tap/surge</code>
           </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-secondary/20 transition-colors">
-            <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Alt: Homebrew Cask</span>
-            <code class="text-secondary/70 font-bold">brew install --cask surge</code>
-          </div>
           <a href="https://github.com/surge-downloader/surge/releases/latest" target="_blank" rel="noopener" class="block w-full py-5 bg-secondary text-black font-black uppercase text-xs tracking-[0.2em] hover:shadow-[0_0_30px_rgba(255,81,250,0.3)] transition-all rounded-2xl active:scale-95 text-center">
-            DOWNLOAD .PKG
+            DOWNLOAD BINARY
           </a>
         </div>
       </div>
@@ -474,13 +591,9 @@
             <h3 class="font-headline text-3xl font-black text-white">LINUX</h3>
             <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-black rounded-lg tracking-widest">AUR/BIN</span>
           </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-4 rounded-2xl border border-white/5 relative group-hover:border-tertiary/20 transition-colors">
+          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-tertiary/20 transition-colors">
             <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Arch Linux (AUR)</span>
             <code class="text-tertiary font-bold">yay -S surge</code>
-          </div>
-          <div class="bg-black/40 p-6 font-body text-xs mb-10 rounded-2xl border border-white/5 relative group-hover:border-tertiary/20 transition-colors">
-            <span class="block text-white/30 mb-2 uppercase tracking-widest text-[8px]">Alt: Homebrew</span>
-            <code class="text-tertiary/70 font-bold">brew install surge-downloader/tap/surge</code>
           </div>
           <a href="https://github.com/surge-downloader/surge/releases/latest" target="_blank" rel="noopener" class="block w-full py-5 bg-tertiary/10 border border-tertiary/20 text-tertiary font-black uppercase text-xs tracking-[0.2em] hover:bg-tertiary hover:text-black transition-all rounded-2xl active:scale-95 text-center">
             DOWNLOAD BINARY
@@ -584,7 +697,7 @@
     <div class="col-span-2 space-y-8">
       <div class="flex items-center gap-3">
         <img src="assets/logo_nobg.png" alt="Surge Logo" class="w-8 h-8"/>
-        <span class="text-2xl font-black text-white font-headline tracking-tighter italic">surge_</span>
+        <span class="text-2xl font-black text-white font-headline tracking-tighter italic">Surge_</span>
       </div>
       <p class="text-white/40 leading-loose max-w-sm">
         NEXT-GENERATION DOWNLOAD PROTOCOL ENGINE.<br/>
@@ -620,7 +733,8 @@
   </div>
 </footer>
 <script>
-  // Fetch live GitHub star count
+(function() {
+  // ── GitHub Stars ──
   fetch('https://api.github.com/repos/surge-downloader/surge')
     .then(r => r.json())
     .then(data => {
@@ -629,8 +743,94 @@
         const n = data.stargazers_count;
         el.textContent = n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n.toString();
       }
-    })
-    .catch(() => {});
+    }).catch(() => {});
+
+  // ── Custom Cursor ──
+  const cursor = document.getElementById('cursor-dot');
+  if (cursor && window.matchMedia('(pointer: fine)').matches) {
+    let cx = -100, cy = -100;
+    document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+    (function loop() {
+      cursor.style.left = cx + 'px';
+      cursor.style.top = cy + 'px';
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a, button, [role="button"], input, select, textarea').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+  } else if (cursor) {
+    cursor.style.display = 'none';
+    document.documentElement.style.cursor = 'auto';
+  }
+
+  // ── Binary Rain ──
+  const rain = document.getElementById('binary-rain');
+  if (rain) {
+    for (let i = 0; i < 20; i++) {
+      const col = document.createElement('div');
+      col.className = 'binary-column';
+      const len = 40 + Math.floor(Math.random() * 60);
+      let txt = '';
+      for (let j = 0; j < len; j++) txt += Math.random() > 0.5 ? '1' : '0';
+      col.textContent = txt;
+      col.style.left = (i * 5 + Math.random() * 3) + '%';
+      col.style.animationDuration = (12 + Math.random() * 18) + 's';
+      col.style.animationDelay = -(Math.random() * 20) + 's';
+      col.style.opacity = 0.3 + Math.random() * 0.7;
+      rain.appendChild(col);
+    }
+  }
+
+  // ── Card Shimmer Spotlight ──
+  document.querySelectorAll('.card-shimmer').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--mouse-y', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+
+  // ── Scroll Reveal (Feature Cards) ──
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObs.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal-card').forEach(el => revealObs.observe(el));
+
+  // ── Benchmark Bars + Counter ──
+  let benchFired = false;
+  const benchSection = document.getElementById('benchmarks');
+  if (benchSection) {
+    const benchObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !benchFired) {
+          benchFired = true;
+          // Animate bars
+          benchSection.querySelectorAll('.bench-bar').forEach(bar => {
+            setTimeout(() => { bar.style.width = bar.dataset.target + '%'; }, 100);
+          });
+          // Count-up for Surge speed
+          const counter = benchSection.querySelector('[data-count-to]');
+          if (counter) {
+            const target = parseFloat(counter.dataset.countTo);
+            const suffix = counter.dataset.suffix || '';
+            const duration = 1200;
+            const start = performance.now();
+            function tick(now) {
+              const p = Math.min((now - start) / duration, 1);
+              const ease = 1 - Math.pow(1 - p, 3);
+              counter.textContent = (target * ease).toFixed(2) + suffix;
+              if (p < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+          }
+          benchObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    benchObs.observe(benchSection);
+  }
+})();
 </script>
 </body>
 </html>
