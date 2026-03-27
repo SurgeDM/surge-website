@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://surge-downloader.github.io/surge-website/sitemap.xml
